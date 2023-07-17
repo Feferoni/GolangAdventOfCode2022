@@ -495,7 +495,7 @@ func moveStacksViaInstructionsOneAtTheTime(stackArray [][]byte, instructionRows 
 		stackArray[fromStackIndex] = fromStack
 		stackArray[toStackIndex] = toStack
 
-        // fmt.Println("Moving ", nrToMove, " from ", fromStackIndex, " to ", toStackIndex)
+		// fmt.Println("Moving ", nrToMove, " from ", fromStackIndex, " to ", toStackIndex)
 		// fmt.Println("stacksArray state: ")
 		// printStacksArray(stackArray)
 	}
@@ -938,7 +938,7 @@ func getViewableTreesMatrix(treeMatrix *[][]int) *[][]int {
 	for jdx := 0; jdx < len((*treeMatrix)[idx]); jdx++ {
 		highestTree := -1
 		// from top -> bottom
-		for ; idx < len(*treeMatrix) - 1; idx++ {
+		for ; idx < len(*treeMatrix)-1; idx++ {
 			tree := (*treeMatrix)[idx][jdx]
 			if idx == 0 {
 				highestTree = tree
@@ -951,7 +951,7 @@ func getViewableTreesMatrix(treeMatrix *[][]int) *[][]int {
 			}
 		}
 		highestTree = -1
-        idx--
+		idx--
 		// from bottom -> top
 		for ; idx >= 0; idx-- {
 			tree := (*treeMatrix)[idx][jdx]
@@ -972,13 +972,13 @@ func getViewableTreesMatrix(treeMatrix *[][]int) *[][]int {
 }
 
 func countNrOfVisibleTrees(viewableTreesMatrix *[][]int) int {
-    nrOfVisibleTrees := 0
-    for _, viewableTreesRow := range *viewableTreesMatrix {
-        for _, viewableTree := range viewableTreesRow {
-            nrOfVisibleTrees += viewableTree
-        }
-    }
-    return nrOfVisibleTrees
+	nrOfVisibleTrees := 0
+	for _, viewableTreesRow := range *viewableTreesMatrix {
+		for _, viewableTree := range viewableTreesRow {
+			nrOfVisibleTrees += viewableTree
+		}
+	}
+	return nrOfVisibleTrees
 }
 
 func day8_part1() {
@@ -992,90 +992,90 @@ func day8_part1() {
 	// printTreeMatrix(treeMatrix)
 	viewableTreesMatrix := getViewableTreesMatrix(treeMatrix)
 	// printTreeMatrix(viewableTreesMatrix)
-    solution := countNrOfVisibleTrees(viewableTreesMatrix)
-    fmt.Println(getFunctionName(), " solution: ", solution)
+	solution := countNrOfVisibleTrees(viewableTreesMatrix)
+	fmt.Println(getFunctionName(), " solution: ", solution)
 }
 
-func getScenicScoreForePosition(treeMatrix *[][]int, x int, y int)  int{
-    currentTreeHeight := (*treeMatrix)[x][y]
-    rightScore := 0
-    for jdx := y + 1; jdx < len((*treeMatrix)[x]); jdx++ {
-        viewedTreeHeight := (*treeMatrix)[x][jdx]
-        if viewedTreeHeight < currentTreeHeight {
-            rightScore++
-        } else {
-            rightScore++
-            break
-        }
-    }
+func getScenicScoreForePosition(treeMatrix *[][]int, x int, y int) int {
+	currentTreeHeight := (*treeMatrix)[x][y]
+	rightScore := 0
+	for jdx := y + 1; jdx < len((*treeMatrix)[x]); jdx++ {
+		viewedTreeHeight := (*treeMatrix)[x][jdx]
+		if viewedTreeHeight < currentTreeHeight {
+			rightScore++
+		} else {
+			rightScore++
+			break
+		}
+	}
 
-    leftScore := 0
-    for jdx := y - 1; jdx >= 0; jdx-- {
-        viewedTreeHeight := (*treeMatrix)[x][jdx]
-        if viewedTreeHeight < currentTreeHeight {
-            leftScore++
-        } else {
-            leftScore++
-            break
-        }
-    }
+	leftScore := 0
+	for jdx := y - 1; jdx >= 0; jdx-- {
+		viewedTreeHeight := (*treeMatrix)[x][jdx]
+		if viewedTreeHeight < currentTreeHeight {
+			leftScore++
+		} else {
+			leftScore++
+			break
+		}
+	}
 
-    topScore := 0
-    for idx := x - 1; idx >= 0; idx-- {
-        viewedTreeHeight := (*treeMatrix)[idx][y]
-        if viewedTreeHeight < currentTreeHeight {
-            topScore++
-        } else {
-            topScore++
-            break
-        }
-    }
+	topScore := 0
+	for idx := x - 1; idx >= 0; idx-- {
+		viewedTreeHeight := (*treeMatrix)[idx][y]
+		if viewedTreeHeight < currentTreeHeight {
+			topScore++
+		} else {
+			topScore++
+			break
+		}
+	}
 
-    bottomScore := 0
-    for idx := x + 1; idx < len(*treeMatrix) - 1; idx++ {
-        viewedTreeHeight := (*treeMatrix)[idx][y]
-        if viewedTreeHeight < currentTreeHeight {
-            bottomScore++
-        } else {
-            bottomScore++
-            break
-        }
-    }
+	bottomScore := 0
+	for idx := x + 1; idx < len(*treeMatrix)-1; idx++ {
+		viewedTreeHeight := (*treeMatrix)[idx][y]
+		if viewedTreeHeight < currentTreeHeight {
+			bottomScore++
+		} else {
+			bottomScore++
+			break
+		}
+	}
 
-    return leftScore * rightScore * topScore * bottomScore
+	return leftScore * rightScore * topScore * bottomScore
 }
 
-// To measure the viewing distance from a given tree, look up, down, left, and right from that tree; 
-// stop if you reach an edge or at the first tree that is the same height or taller than the tree under consideration. 
+// To measure the viewing distance from a given tree, look up, down, left, and right from that tree;
+// stop if you reach an edge or at the first tree that is the same height or taller than the tree under consideration.
 // (If a tree is right on the edge, at least one of its viewing distances will be zero.)
 func getScenicScoreMatrix(treeMatrix *[][]int) *[][]int {
-    scenicScoreMatrix := make([][]int, len(*treeMatrix))
-    for idx := range scenicScoreMatrix {
-        scenicScoreMatrix[idx] = make([]int, len((*treeMatrix)[idx]))
-    }
+	scenicScoreMatrix := make([][]int, len(*treeMatrix))
+	for idx := range scenicScoreMatrix {
+		scenicScoreMatrix[idx] = make([]int, len((*treeMatrix)[idx]))
+	}
 
-    for idx, treeRow := range *treeMatrix {
-        for jdx := range treeRow {
-            if jdx != 0 && jdx != len((*treeMatrix)[idx]) -1 && idx != 0 && idx != len(*treeMatrix) -1 {
-                scenicScoreMatrix[idx][jdx] = getScenicScoreForePosition(treeMatrix, idx, jdx)
-            } else {
-                scenicScoreMatrix[idx][jdx] = 0
-            }
-        }
-    }
-    return &scenicScoreMatrix
+	for idx, treeRow := range *treeMatrix {
+		for jdx := range treeRow {
+			if jdx != 0 && jdx != len((*treeMatrix)[idx])-1 && idx != 0 && idx != len(*treeMatrix)-1 {
+				scenicScoreMatrix[idx][jdx] = getScenicScoreForePosition(treeMatrix, idx, jdx)
+			} else {
+				scenicScoreMatrix[idx][jdx] = 0
+			}
+		}
+	}
+	return &scenicScoreMatrix
 }
 
 func findHighestScenicScore(scenicScoreMatrix *[][]int) int {
-    highestScenicScore := -1
-    for _, scenicScoreRow := range *scenicScoreMatrix {
-        for _, scenicScore := range scenicScoreRow {
-            if scenicScore > highestScenicScore {
-                highestScenicScore = scenicScore
-            }
-        }
-    }
-    return highestScenicScore
+	highestScenicScore := -1
+	for _, scenicScoreRow := range *scenicScoreMatrix {
+		for _, scenicScore := range scenicScoreRow {
+			if scenicScore > highestScenicScore {
+				highestScenicScore = scenicScore
+			}
+		}
+	}
+	return highestScenicScore
 }
 
 func day8_part2() {
@@ -1084,17 +1084,189 @@ func day8_part2() {
 	if err != nil {
 		log.Fatal(err)
 	}
-    
+
 	treeMatrix := getTreeMatrixFromString(rows)
 	// printTreeMatrix(treeMatrix)
 	viewableTreesMatrix := getScenicScoreMatrix(treeMatrix)
 	// printTreeMatrix(viewableTreesMatrix)
-    solution := findHighestScenicScore(viewableTreesMatrix)
-    fmt.Println(getFunctionName(), " solution: ", solution)
+	solution := findHighestScenicScore(viewableTreesMatrix)
+	fmt.Println(getFunctionName(), " solution: ", solution)
 }
 
+// noop = 1 cycle, and does nothing
+// addx = 2 cycles, adds value to the x register
+
+// cycle 1 - noop    - starts executing noop, and finishes - x register = 1
+// cycle 2 - addx 3  - starts executing addx               - x register = 1
+// cycle 3 - addx 3  - finishing execution of addx         - x register = 4
+// cycle 4 - addx-5  - starts executing addx               - x register = 4
+// cycle 5 - addx-5  - finishing execution of addx         - x register = -1
+
+// the signal strength is the cycle number * the x register value
+// calculate the signal strength for 20th cycle and after that 40 cycles after that
+// (that is, during the 20th, 60th, 100th, 140th, 180th, and 220th cycles)
+
+type Operations int
+
+const (
+	NOOP Operations = iota
+	ADDX
+)
+
+type Instruction struct {
+	operation Operations
+	value     int
+}
+
+func getInstructionFromString(instructionString string) Instruction {
+	parsedString := strings.Split(instructionString, " ")
+	if parsedString[0] == "noop" {
+		return Instruction{NOOP, 0}
+	} else {
+		value, err := strconv.Atoi(parsedString[1])
+		if err != nil {
+			log.Fatal(err)
+		}
+		return Instruction{ADDX, value}
+	}
+}
+
+func getInstructionsFromStringArray(instructionStrings []string) *[]Instruction {
+	instructions := make([]Instruction, len(instructionStrings))
+	for idx, instructionString := range instructionStrings {
+		instructions[idx] = getInstructionFromString(instructionString)
+	}
+	return &instructions
+}
+
+func getSignalStrength(cycle int, xRegister int) int {
+	if cycle == 20 || (cycle > 40 && (cycle-20)%40 == 0) {
+		return cycle * xRegister
+	} else {
+		return 0
+	}
+}
+
+func getSumOfSignalStrength(instructions *[]Instruction) int {
+	sumOfSignalStrength := 0
+	xRegister := 1
+	cycle := 0
+	idx := 0
+
+	for {
+		if idx >= len(*instructions) {
+			break
+		}
+
+		instruction := (*instructions)[idx]
+		if instruction.operation == NOOP {
+			cycle++
+			sumOfSignalStrength += getSignalStrength(cycle, xRegister)
+		} else {
+			cycle++
+			sumOfSignalStrength += getSignalStrength(cycle, xRegister)
+
+			cycle++
+			sumOfSignalStrength += getSignalStrength(cycle, xRegister)
+			xRegister += instruction.value
+		}
+
+		idx++
+	}
+
+	return sumOfSignalStrength
+}
+
+func day9_part1() {
+	rows, err := getRowsFromFile("input10.txt")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	instructions := getInstructionsFromStringArray(rows[:len(rows)-1])
+	solution := getSumOfSignalStrength(instructions)
+	fmt.Println(getFunctionName(), " solution: ", solution)
+}
+
+func printPixels(pixels *[][]byte) {
+	for _, pixelRow := range *pixels {
+		fmt.Println(string(pixelRow))
+	}
+}
+
+func drawPixelsFromInstructions(instructions *[]Instruction) *[][]byte {
+	pixels := make([][]byte, 6)
+	for idx := range pixels {
+		pixels[idx] = make([]byte, 40)
+		for jdx := range pixels[idx] {
+			pixels[idx][jdx] = '.'
+		}
+	}
+
+	pixelIdx := 0
+	pixelJdx := 0 
+
+	xRegister := 1
+	cycle := 0
+	idx := 0
+
+	drawPixels := func() {
+		if xRegister - 1 <= pixelJdx && pixelJdx <= xRegister+ 1 {
+			pixels[pixelIdx][pixelJdx] = '#'
+		}
+	}
+
+    cycleTick := func() {
+        cycle++
+        pixelJdx++
+        if pixelJdx%40 == 0  {
+            pixelIdx++
+            pixelJdx = 0
+        }
+    }
+
+	for {
+		if idx >= len(*instructions) {
+			break
+		}
+
+		instruction := (*instructions)[idx]
+		if instruction.operation == NOOP {
+			drawPixels()
+		    cycleTick()	
+		} else {
+			drawPixels()
+            cycleTick()
+
+			drawPixels()
+            cycleTick()
+			xRegister += instruction.value
+
+		}
+
+		idx++
+	}
+
+	return &pixels
+}
+
+func day9_part2() {
+	rows, err := getRowsFromFile("input10.txt")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	instructions := getInstructionsFromStringArray(rows[:len(rows)-1])
+	pixels := drawPixelsFromInstructions(instructions)
+	printPixels(pixels)
+}
+
+
+
 func main() {
-    time := stdTime.Now()
+	time := stdTime.Now()
 	// day1_part1()
 	// day1_part2()
 	// day2_part1()
@@ -1110,8 +1282,10 @@ func main() {
 	// day7_part1()
 	// day7_part2()
 	// day8_part1()
-    // day8_part2()
+	// day8_part2()
+	// day9_part1()
+	day9_part2()
 
-    duration := stdTime.Since(time)
-    fmt.Println("Duration: ", duration)
+	duration := stdTime.Since(time)
+	fmt.Println("Duration: ", duration)
 }
