@@ -1313,7 +1313,7 @@ func getItemsFromString(row string) []uint64 {
 	return itemsInt
 }
 
-func getOperationsFromString(row string) (WorryOperation, uint64){
+func getOperationsFromString(row string) (WorryOperation, uint64) {
 	parsedString := strings.Split(row, " ")
 
 	var value uint64
@@ -1324,7 +1324,7 @@ func getOperationsFromString(row string) (WorryOperation, uint64){
 		old = true
 	} else {
 		var err error
-        value, err = strconv.ParseUint(parsedString[len(parsedString)-1], 10, 64)
+		value, err = strconv.ParseUint(parsedString[len(parsedString)-1], 10, 64)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -1357,7 +1357,7 @@ func getTestValueFromString(row string) uint64 {
 		log.Fatal("Could not parse test value: ", row)
 	}
 
-    value, err := strconv.ParseUint(match[1], 10, 64)
+	value, err := strconv.ParseUint(match[1], 10, 64)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -1371,7 +1371,7 @@ func getThrowToMonkeyFromString(row string) uint64 {
 		log.Fatal("Could not parse throw to monkey: ", row)
 	}
 
-    value, err := strconv.ParseUint(match[1], 10, 64)
+	value, err := strconv.ParseUint(match[1], 10, 64)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -1467,7 +1467,7 @@ func runMonkeyRounds(monkeys *[]Monkey, rounds int, superMod uint64) {
 				recevingMonkey.items = append(recevingMonkey.items, item)
 			}
 		}
-    }
+	}
 }
 
 func day11_part1() {
@@ -1495,7 +1495,7 @@ func day11_part1() {
 
 func getSuperMod(monkeys *[]Monkey) uint64 {
 	var superMod uint64
-    superMod = 1
+	superMod = 1
 	for _, monkey := range *monkeys {
 		superMod *= monkey.testValue
 	}
@@ -1526,6 +1526,220 @@ func day11_part2() {
 	fmt.Println("Monkey business: ", monkeyBusiness)
 }
 
+type Direction int
+
+const (
+	Up Direction = iota
+	Down
+	Left
+	Right
+)
+
+func (d Direction) String() string {
+	switch d {
+	case Up:
+		return "Up"
+	case Down:
+		return "Down"
+	case Left:
+		return "Left"
+	case Right:
+		return "Right"
+	default:
+		return "Unknown"
+	}
+}
+
+type SnakeInstruction struct {
+	direction Direction
+	steps     int
+}
+
+type Position struct {
+	x int
+	y int
+}
+
+type Snake struct {
+    headPosition Position
+    bodyPositions []Position
+}
+
+func (s *Snake) printState(length int) {
+    array := make([][]string, length * 2)
+
+    for idx := range array {
+        row := make([]string, length * 2)
+        for idx2 := range row {
+            row[idx2] = "."
+        }
+        array[idx] = row
+    }
+
+    array[s.headPosition.x + length][s.headPosition.y + length] = "H"
+
+    for _, snakePart := range s.bodyPositions {
+        array[snakePart.x + length][snakePart.y + length] = "B"
+    }
+
+    fmt.Println("Snake state:")
+    array[length][length] = "S"
+
+    for i := 0; i < length * 2; i++ {
+        for j := 0; j < length * 2; j++ {
+            fmt.Print(array[j][(length * 2) - 1 - i])  
+        }
+        fmt.Println()
+    }
+}
+
+func (s *Snake) printSnake() {
+    fmt.Println("Head[ ] - position (x,y) = ", s.headPosition.x, ",", s.headPosition.y)
+
+    for idx, snakePart := range s.bodyPositions {
+        fmt.Println("Part[", idx, "] - position (x,y) = ", snakePart.x, ",", snakePart.y)
+    }
+    fmt.Println()
+}
+
+func abs(x int) int {
+	if x < 0 {
+		return -x
+	}
+	return x
+}
+
+func shouldMove(frontPos Position, backPos Position) bool {
+    return abs(frontPos.x-backPos.x) > 1 || abs(frontPos.y-backPos.y) > 1
+}
+
+func shouldMoveDiagonally(frontPos, backPos Position) bool {
+	xDistance := abs(frontPos.x - backPos.x)
+	yDistance := abs(frontPos.y - backPos.y) 
+	return xDistance+yDistance > 2
+}
+
+func (s *Snake) moveSnake(instruction SnakeInstruction, visited *[]map[Position]bool) {
+    fmt.Println(instruction.direction, " ", instruction.steps)
+	for i := 0; i < instruction.steps; i++ {
+		switch instruction.direction {
+		case Up:
+			s.headPosition.y++
+		case Down:
+			s.headPosition.y--
+		case Left:
+			s.headPosition.x--
+		case Right:
+			s.headPosition.x++
+		}
+
+        var previousPos Position
+        for idx, backPos := range (*s).bodyPositions {
+            if idx == 0 {
+                if !shouldMove(s.headPosition, backPos) {
+                    break
+                }
+
+                switch instruction.direction {
+                case Up:
+                    if shouldMoveDiagonally(s.headPosition, backPos) {
+                        backPos = Position{s.headPosition.x, s.headPosition.y - 1}
+                    } else {
+                        backPos.y++
+                    }
+                case Down:
+                    if shouldMoveDiagonally(s.headPosition, backPos) {
+                        backPos = Position{s.headPosition.x, s.headPosition.y + 1}
+                    } else {
+                        backPos.y--
+                    }
+                case Left:
+                    if shouldMoveDiagonally(s.headPosition, backPos) {
+                        backPos = Position{s.headPosition.x + 1, s.headPosition.y}
+                    } else {
+                        backPos.x--
+                    }
+                case Right:
+                    if shouldMoveDiagonally(s.headPosition, backPos) {
+                        backPos = Position{s.headPosition.x - 1, s.headPosition.y}
+                    } else {
+                        backPos.x++
+                    }
+                }
+                previousPos = s.bodyPositions[idx] 
+                s.bodyPositions[idx] = backPos
+            } else {
+                tmp := s.bodyPositions[idx]
+                s.bodyPositions[idx] = previousPos
+                previousPos = tmp 
+            }
+
+            (*visited)[idx][backPos] = true
+        }
+
+		s.printState(25)
+	}
+}
+
+func getInstructionsFromStrings(rows []string) *[]SnakeInstruction {
+	instructions := make([]SnakeInstruction, 0)
+
+	for _, row := range rows {
+		parsedRow := strings.Split(row, " ")
+
+		var direction Direction
+		switch parsedRow[0] {
+		case "U":
+			direction = Up
+		case "D":
+			direction = Down
+		case "L":
+			direction = Left
+		case "R":
+			direction = Right
+		default:
+			log.Fatalf("Not a valid direction: %s", parsedRow[0])
+		}
+
+		steps, err := strconv.Atoi(parsedRow[1])
+		if err != nil {
+			log.Fatalf("Not a valid number: %s", parsedRow[1])
+		}
+
+		instruction := SnakeInstruction{direction: direction, steps: steps}
+		instructions = append(instructions, instruction)
+	}
+
+	return &instructions
+}
+
+func day9_part1() {
+	rows, err := getRowsFromFile("test.txt")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+    snake := Snake{headPosition: Position{x: 0, y: 0}, bodyPositions: make([]Position, 9)}
+    bodyVisited := make([]map[Position]bool, 9)
+
+    for idx, visited := range bodyVisited {
+        visited = make(map[Position]bool)
+        visited[Position{x: 0, y: 0}] = true
+        bodyVisited[idx] = visited
+    }
+
+    snake.printState(25)
+	instructions := getInstructionsFromStrings(rows[:len(rows)-1])
+	
+    for _, instruction := range *instructions {
+		snake.moveSnake(instruction, &bodyVisited)
+	}
+
+	fmt.Println(instructions)
+    fmt.Println(len(bodyVisited[8]))
+}
+
 func main() {
 	time := stdTime.Now()
 	// day1_part1()
@@ -1547,7 +1761,8 @@ func main() {
 	// day10_part1()
 	// day10_part2()
 	// day11_part1()
-	day11_part2()
+	// day11_part2()
+	day9_part1()
 
 	duration := stdTime.Since(time)
 	fmt.Println("Duration: ", duration)
